@@ -1,12 +1,14 @@
 FROM golang:1.11-alpine as builder
 
 WORKDIR /build
-COPY . /build
+
 RUN apk add --update --no-cache git
 RUN go get github.com/t-yuki/gocover-cobertura \
     && go get github.com/2tvenom/go-test-teamcity \
     && cd /build
-
+    
+ARG CACHE_INVALIDATION
+COPY . /build
 RUN go test -v -coverprofile=coverage.txt -covermode=count ./... | go-test-teamcity
 RUN gocover-cobertura < coverage.txt > coverage.xml \
     &&  rm coverage.txt
